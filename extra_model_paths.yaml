@@ -1,0 +1,8 @@
+runpod_volume:
+    base_path: /runpod-volume/models/
+    checkpoints: checkpoints/
+    clip: clip/
+    vae: vae/
+    loras: loras/
+    controlnet: controlnet/
+    upscale_models: upscale_models/
