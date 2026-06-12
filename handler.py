@@ -54,12 +54,9 @@ def save_input_image(image_base64):
 
 
 def inject_params(workflow, prompt_text, image_filename, params):
-    """Iterate workflow nodes and set matching inputs.
-
-    Injects prompt text, seed, steps, cfg, width, height, and input image filename
-    into the appropriate workflow nodes.
-    """
+    """Inject parameters into workflow nodes by matching class_type and input fields."""
     params = params or {}
+    negative_prompt = params.get("negative_prompt")
 
     for node_id, node in workflow.items():
         if not isinstance(node, dict):
@@ -67,26 +64,34 @@ def inject_params(workflow, prompt_text, image_filename, params):
         inputs = node.get("inputs", {})
         class_type = node.get("class_type", "")
 
-        # Inject prompt text into text-related nodes
-        if "text" in inputs and prompt_text is not None:
-            inputs["text"] = prompt_text
+        # Inject positive prompt into the first CLIPTextEncode (node "11")
+        if class_type == "CLIPTextEncode" and "text" in inputs:
+            if node_id == "11" and prompt_text is not None:
+                inputs["text"] = prompt_text
+            elif node_id == "12" and negative_prompt is not None:
+                inputs["text"] = negative_prompt
 
         # Inject image filename into image loader nodes
-        if "image" in inputs and image_filename is not None:
-            if class_type in ("LoadImage", "LoadImageMask"):
+        if class_type in ("LoadImage", "LoadImageMask"):
+            if "image" in inputs and image_filename is not None:
                 inputs["image"] = image_filename
 
-        # Inject numeric/dimension parameters
+        # Inject sampler parameters (KSampler and KSamplerAdvanced)
+        if "noise_seed" in inputs and "seed" in params:
+            inputs["noise_seed"] = params["seed"]
         if "seed" in inputs and "seed" in params:
             inputs["seed"] = params["seed"]
         if "steps" in inputs and "steps" in params:
             inputs["steps"] = params["steps"]
         if "cfg" in inputs and "cfg" in params:
             inputs["cfg"] = params["cfg"]
-        if "width" in inputs and "width" in params:
-            inputs["width"] = params["width"]
-        if "height" in inputs and "height" in params:
-            inputs["height"] = params["height"]
+
+        # Inject dimensions into EmptyLatentImage
+        if class_type == "EmptyLatentImage":
+            if "width" in inputs and "width" in params:
+                inputs["width"] = params["width"]
+            if "height" in inputs and "height" in params:
+                inputs["height"] = params["height"]
 
     return workflow
 
@@ -151,7 +156,7 @@ def handler(job):
             return {"error": "Missing required field: prompt"}
         image_base64 = job_input.get("image")
         workflow_params = job_input.get("workflow_params", {})
-        workflow_name = job_input.get("workflow", "default_workflow.json")
+        workflow_name = job_input.get("workflow", "anima_basic.json")
 
         # Load workflow template
         workflow = load_workflow(workflow_name)

@@ -1,8 +1,9 @@
 runpod_volume:
-    base_path: /runpod-volume/models/
+    base_path: /runpod-volume/runpod-slim/ComfyUI/models/
     checkpoints: checkpoints/
-    clip: clip/
+    clip: text_encoders/
     vae: vae/
     loras: loras/
     controlnet: controlnet/
+    diffusion_models: diffusion_models/
     upscale_models: upscale_models/
