@@ -10,8 +10,8 @@ echo ""
 echo "=== Starting ComfyUI server ==="
 cd /app/ComfyUI
 
-python main.py \
-    --listen 127.0.0.1 \
+python3 main.py \
+    --listen 0.0.0.0 \
     --port 8188 \
     --disable-auto-launch \
     --extra-model-paths-config /app/extra_model_paths.yaml \
@@ -21,7 +21,7 @@ COMFYUI_PID=$!
 
 echo "ComfyUI PID: $COMFYUI_PID"
 echo "Waiting for ComfyUI to be ready..."
-TIMEOUT=120
+TIMEOUT=180
 ELAPSED=0
 while [ $ELAPSED -lt $TIMEOUT ]; do
     if curl -s http://127.0.0.1:8188/system_stats > /dev/null 2>&1; then
@@ -48,4 +48,4 @@ fi
 
 echo "=== Starting RunPod handler ==="
 cd /app
-python -u handler.py
+exec python3 -u handler.py

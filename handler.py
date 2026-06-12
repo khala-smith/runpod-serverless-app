@@ -204,6 +204,4 @@ def handler(job):
         return {"error": f"Unexpected error: {str(e)}"}
 
 
-if __name__ == "__main__":
-    wait_for_comfyui()
-    runpod.serverless.start({"handler": handler})
+runpod.serverless.start({"handler": handler})
