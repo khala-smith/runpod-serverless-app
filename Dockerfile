@@ -1,11 +1,11 @@
-FROM nvidia/cuda:12.4.0-runtime-ubuntu22.04
+FROM nvidia/cuda:12.4.0-runtime-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y \
-    python3.11 \
-    python3.11-venv \
+    python3 \
+    python3-venv \
     python3-pip \
     git \
     curl \
@@ -13,16 +13,13 @@ RUN apt-get update && apt-get install -y \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1 \
-    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
-
 WORKDIR /app
 
 RUN git clone https://github.com/comfyanonymous/ComfyUI.git /app/ComfyUI \
     && cd /app/ComfyUI \
-    && pip install --no-cache-dir -r requirements.txt
+    && pip install --no-cache-dir --break-system-packages -r requirements.txt
 
-RUN pip install --no-cache-dir torch torchvision torchaudio \
+RUN pip install --no-cache-dir --break-system-packages torch torchvision torchaudio \
     --index-url https://download.pytorch.org/whl/cu124
 
 # Install custom nodes (add as needed)
@@ -30,7 +27,7 @@ RUN pip install --no-cache-dir torch torchvision torchaudio \
 #     && git clone https://github.com/<org>/<node>.git
 
 COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir --break-system-packages -r /app/requirements.txt
 
 COPY handler.py /app/handler.py
 COPY start.sh /app/start.sh
