@@ -25,12 +25,9 @@ RUN git clone https://github.com/comfyanonymous/ComfyUI.git /app/ComfyUI \
 RUN pip install --no-cache-dir torch torchvision torchaudio \
     --index-url https://download.pytorch.org/whl/cu124
 
-# Install custom nodes for QwenImageEdit
-# Uncomment and modify for your specific custom nodes:
+# Install custom nodes (add as needed)
 # RUN cd /app/ComfyUI/custom_nodes \
-#     && git clone https://github.com/<org>/<qwen-image-edit-node>.git \
-#     && cd <qwen-image-edit-node> \
-#     && pip install --no-cache-dir -r requirements.txt
+#     && git clone https://github.com/<org>/<node>.git
 
 COPY requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
